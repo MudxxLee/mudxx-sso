@@ -1,0 +1,12 @@
+server:
+  port: 9300
+spring:
+  application:
+    name: mudxx-sso-auth
+  #服务注册,发现,配置
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+      config:
+        server-addr: localhost:8848

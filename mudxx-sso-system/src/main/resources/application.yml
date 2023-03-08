@@ -1,0 +1,22 @@
+server:
+  port: 9390
+spring:
+  application:
+    name: mudxx-sso-system
+  #服务注册,发现,配置
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+      config:
+        server-addr: localhost:8848
+        file-extension: yml
+  #连接接数据库的配置
+  datasource:
+    url: jdbc:mysql://120.26.37.73:3306/mudxx-sso?useUnicode=true&characterEncoding=utf-8
+    username: root
+    password: alimysql123456
+#日志的配置
+logging:
+  level:
+    com.mudxx: debug
