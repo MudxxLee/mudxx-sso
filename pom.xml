@@ -10,11 +10,14 @@
         <module>mudxx-sso-auth</module>
         <module>mudxx-sso-system</module>
         <module>mudxx-sso-common</module>
+        <module>mudxx-sso-modules</module>
+        <module>mudxx-sso-auth2</module>
     </modules>
     <name>mudxx-sso</name>
     <packaging>pom</packaging>
 
     <properties>
+        <mudxx.sso.version>0.0.1-SNAPSHOT</mudxx.sso.version>
         <spring.boot.version>2.3.2.RELEASE</spring.boot.version>
         <spring.cloud.version>Hoxton.SR9</spring.cloud.version>
         <spring.cloud.alibaba.version>2.2.6.RELEASE</spring.cloud.alibaba.version>

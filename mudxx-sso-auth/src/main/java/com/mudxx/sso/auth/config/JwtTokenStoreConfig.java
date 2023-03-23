@@ -19,7 +19,7 @@ import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
  * 3)JwtTokenStore (对性能要求比较高的分布式架构)
  */
 @Configuration
-public class TokenConfig {
+public class JwtTokenStoreConfig {
 
     /**
      * 这里的签名key将来可以写到配置中心
@@ -36,6 +36,11 @@ public class TokenConfig {
         JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
         converter.setSigningKey(SIGNING_KEY);
         return converter;
+    }
+
+    @Bean
+    public JwtTokenEnhancer jwtTokenEnhancer() {
+        return new JwtTokenEnhancer();
     }
 
 }

@@ -1,4 +1,4 @@
-package com.mudxx.sso.auth.entity;
+package com.mudxx.sso.auth2.entity;
 
 import lombok.Data;
 

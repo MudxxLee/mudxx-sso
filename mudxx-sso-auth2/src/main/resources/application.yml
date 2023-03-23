@@ -1,0 +1,12 @@
+server:
+  port: 9301
+spring:
+  application:
+    name: mudxx-sso-auth2
+
+# 自定义jwt key
+jwt:
+  tokenHeader: Authorization #JWT存储的请求头
+  secret: mySecret #JWT加解密使用的密钥
+  expiration: 300 #JWT的超期限时间(秒)
+  tokenHead: Bearer  #JWT负载中拿到开头

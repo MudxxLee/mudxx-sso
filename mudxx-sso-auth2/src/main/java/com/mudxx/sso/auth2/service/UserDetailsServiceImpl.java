@@ -1,9 +1,9 @@
-package com.mudxx.sso.auth.service;
+package com.mudxx.sso.auth2.service;
 
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONUtil;
-import com.mudxx.sso.auth.service.vo.UserVo;
+import com.mudxx.sso.auth2.entity.SSOUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -39,33 +39,40 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         //1.基于用户名查找用户信息,判定用户是否存在
-        UserVo userVo = getDefaultByUsername(username);
-        if(ObjectUtil.isEmpty(userVo)) {
-            throw new UsernameNotFoundException("用户名或密码错误");
+        SSOUser ssoUser = getDefaultByUsername(username);
+        if(ObjectUtil.isEmpty(ssoUser)) {
+            throw new UsernameNotFoundException("user is not exist");
         }
-        return new User(username, userVo.getPassword(), AuthorityUtils.createAuthorityList(userVo.getPermissions().toArray(new String[]{})));
+        //2.封装查询结果并返回
+        return new User(username,
+                ssoUser.getPassword(),
+                AuthorityUtils.createAuthorityList(ssoUser.getPermissions().toArray(new String[]{})));
     }
 
-    private UserVo getDefaultByUsername(String username) {
-        UserVo userVo = new UserVo();
-        userVo.setUsername(username);
-        userVo.setPassword(passwordEncoder.encode("123456"));
-        userVo.setPermissions(new ArrayList<>());
-        return userVo;
+    private SSOUser getDefaultByUsername(String username) {
+        SSOUser ssoUser = new SSOUser();
+        ssoUser.setUsername("admin");
+        ssoUser.setPassword(passwordEncoder.encode("123456"));
+        ssoUser.setPermissions(new ArrayList<>());
+        return ssoUser;
     }
 
-    public static final String URL_PREFIX = "http://127.0.0.1:9390/sso";
+    private static final String URL_PREFIX = "http://127.0.0.1:9390/sso";
 
-    private UserVo getByUsername(String username) {
-        UserVo userVo = null;
+    private SSOUser getByUsername(String username) {
+        SSOUser ssoUser = null;
         try {
             String url = URL_PREFIX + "/user/get/" + username;
             String result = HttpUtil.get(url, 5000);
-            userVo = JSONUtil.toBean(result, UserVo.class);
+            ssoUser = JSONUtil.toBean(result, SSOUser.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return userVo;
+        if(ObjectUtil.isNotEmpty(ssoUser)) {
+            List<String> permissions = getUserPermissions(ssoUser.getId());
+            ssoUser.setPermissions(permissions);
+        }
+        return ssoUser;
     }
 
     private List<String> getUserPermissions(Long id) {

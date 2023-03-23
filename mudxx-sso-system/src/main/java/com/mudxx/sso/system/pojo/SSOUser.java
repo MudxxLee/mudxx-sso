@@ -12,5 +12,5 @@ public class SSOUser implements Serializable {
     private Long id;
     private String username;
     private String password;
-    private String status;
+    private Integer status;
 }

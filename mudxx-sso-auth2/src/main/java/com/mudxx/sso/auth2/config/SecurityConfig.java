@@ -1,27 +1,45 @@
-package com.mudxx.sso.auth.config;
+package com.mudxx.sso.auth2.config;
 
-import com.mudxx.sso.common.web.util.WebUtils;
+import com.mudxx.sso.auth2.component.JwtAuthenticationTokenFilter;
 import com.mudxx.sso.common.web.api.CommonResult;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 /**
  * @author laiw
  * @date 2023/3/8 13:37
  */
 @Configuration
+@EnableWebSecurity
+//启动方法上的权限控制,需要授权才可访问的方法上添加@PreAuthorize等相关注解
+@EnableGlobalMethodSecurity(prePostEnabled=true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Autowired
+    private UserDetailsService userDetailsService;
 
     /**
      * 构建密码加密对象,登录时,系统底层会基于此对象进行密码加密
@@ -42,30 +60,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManager();
     }
 
-//    /**
-//     * 假如在前后端分离架构中,希望对登录成功和失败以后的信息以json
-//     * 形式进行返回,我们自己控制哪些url需要认证,哪些不需要认证,
-//     * 我们可以重写下面的方法进行自定义
-//     * 说明:这个方法是可以不写的.
-//     * @param http
-//     * @throws Exception
-//     */
-//    @Override
-//    protected void configure(HttpSecurity http) throws Exception {
-//        //1.关闭跨域攻击
-//        http.csrf().disable();
-//        //2.放行所有请求url(默认)
-//        //这种形式表示要认证
-//        //http.authorizeRequests().anyRequest().permitAll();//默认
-//        //3.配置登录成功和失败处理器(目的是响应到客户端的数据是json字符串)
-//        //默认没有配置,他会跳转到登录成功或失败的页面,而实际前后端分离架构
-//        //中服务端不负责页面跳转,服务端只负责返回json数据
-//        http.formLogin()//此方法执行后会生成一个/login的url
-//                //登录成功(success)处理器(handler)
-//                .successHandler(successHandler())
-//                .failureHandler(failureHandler());
-//
-//    }
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userDetailsService)
+                .passwordEncoder(passwordEncoder());
+    }
 
     /**
      * 假如在前后端分离架构中,希望对登录成功和失败以后的信息以json
@@ -87,8 +86,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .failureHandler(failureHandler());
         //假如某个资源必须认证才可访问,那没有认证怎么办?(返回json)
         httpSecurity.exceptionHandling()
-                .accessDeniedHandler(accessDeniedHandler())
-                .authenticationEntryPoint(authenticationEntryPoint());
+                .accessDeniedHandler(deniedHandler())
+                .authenticationEntryPoint(entryPoint());
         //3.所有资源都要认证
         httpSecurity.authorizeRequests()
                 .antMatchers("/api/auth/**")
@@ -101,19 +100,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // 禁用缓存
         httpSecurity.headers().cacheControl();
         // 添加JWT filter
-//        httpSecurity.addFilterBefore(jwtAuthenticationTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+        httpSecurity.addFilterBefore(jwtAuthenticationTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 
-
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        super.configure(auth);
-        // 自行实现认证逻辑
-        //auth.authenticationProvider();
+    @Bean
+    public JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter(){
+        return new JwtAuthenticationTokenFilter();
     }
 
     /**
      * 定义认证成功处理器
+     * @return
      */
     @Bean
     public AuthenticationSuccessHandler successHandler(){
@@ -122,44 +119,54 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             //1.定义响应数据
             CommonResult<Object> result = CommonResult.success();
             //2.将响应数据写到客户端
-            WebUtils.writeJsonToClient(response, result);
+            writeJsonToClient(response, result);
         };
     }
 
     /**
      * 失败处理器
+     * @return
      */
     @Bean
     public AuthenticationFailureHandler failureHandler(){
-        return (request, response, e) -> {
-            //1.定义响应数据
-            CommonResult<Object> result = CommonResult.unauthorized();
-            //2.将响应数据写到客户端
-            WebUtils.writeJsonToClient(response, result);
+        return new AuthenticationFailureHandler() {
+            @Override
+            public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException e) throws IOException, ServletException {
+                //1.定义响应数据
+                CommonResult<Object> result = CommonResult.unauthorized();
+                //2.将响应数据写到客户端
+                writeJsonToClient(response, result);
+            }
         };
     }
 
-
     /**假如没有登录访问资源时给出提示*/
-    @Bean
-    public AccessDeniedHandler accessDeniedHandler(){
+    private AccessDeniedHandler deniedHandler(){
         return (request,response,exception)->{
             //1.定义响应数据
             CommonResult<Object> result = CommonResult.forbidden();
             //2.将响应数据写到客户端
-            WebUtils.writeJsonToClient(response, result);
+            writeJsonToClient(response, result);
         };
     }
 
     /**假如没有登录访问资源时给出提示*/
-    @Bean
-    public AuthenticationEntryPoint authenticationEntryPoint(){
+    private AuthenticationEntryPoint entryPoint(){
         return (request,response,exception)->{
             //1.定义响应数据
             CommonResult<Object> result = CommonResult.unauthorized();
             //2.将响应数据写到客户端
-            WebUtils.writeJsonToClient(response, result);
+            writeJsonToClient(response, result);
         };
     }
 
+
+    private void writeJsonToClient(HttpServletResponse response, CommonResult<Object> result) throws IOException {
+        //设置响应数据编码和响应数据类型
+        response.setCharacterEncoding("utf-8");
+        response.setContentType("application/json;charset=utf-8");
+        PrintWriter out= response.getWriter();
+        out.write(result.toString());
+        out.flush();
+    }
 }

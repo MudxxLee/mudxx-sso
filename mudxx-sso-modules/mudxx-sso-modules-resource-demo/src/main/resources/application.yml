@@ -1,0 +1,5 @@
+server:
+  port: 9310
+spring:
+  application:
+    name: mudxx-sso-modules-resource-demo

@@ -14,7 +14,8 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.token.*;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Oauth2是一种协议或规范，定义了完成用户身份认证和授权的方式，
@@ -40,16 +41,16 @@ public class Oauth2Config extends AuthorizationServerConfigurerAdapter {
     @Autowired
     private UserDetailsService userDetailsService;
     @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
     private TokenStore tokenStore;
     @Autowired
-    private TokenEnhancer jwtAccessTokenConverter;
+    private TokenEnhancer jwtTokenEnhancer;
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private TokenEnhancer jwtAccessTokenConverter;
 
     /**
      * 配置认证规则
-     * @param endpoints
-     * @throws Exception
      */
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
@@ -57,12 +58,15 @@ public class Oauth2Config extends AuthorizationServerConfigurerAdapter {
         endpoints.authenticationManager(authenticationManager);
         // 配置由谁负责查询用户业务数据(可选)
         endpoints.userDetailsService(userDetailsService);
-        //配置可以处理的认证请求方式.(可选,默认只能处理post请求)
-        endpoints.allowedTokenEndpointRequestMethods(HttpMethod.GET,HttpMethod.POST);
-        //配置token生成及存储策略(默认是UUID~随机的字符串)(存储到内存，mysql，redis，jwt)
+        // 配置token生成及存储策略(默认是UUID~随机的字符串)(存储到内存，mysql，redis，jwt)
         endpoints.tokenServices(tokenServices());
+        // 配置可以处理的认证请求方式.(可选,默认只能处理post请求)
+        endpoints.allowedTokenEndpointRequestMethods(HttpMethod.GET,HttpMethod.POST);
     }
 
+    /**
+     * 配置token生成及存储策略
+     */
     @Bean
     public AuthorizationServerTokenServices tokenServices() {
         //1.创建授权令牌服务对象(TokenServices)
@@ -71,14 +75,19 @@ public class Oauth2Config extends AuthorizationServerConfigurerAdapter {
         tokenServices.setTokenStore(tokenStore);
         //3.配置令牌增强(默认令牌的生成非常简单,使用的就是UUID)
         TokenEnhancerChain tokenEnhancer = new TokenEnhancerChain();
-        tokenEnhancer.setTokenEnhancers(Collections.singletonList(jwtAccessTokenConverter));
+        List<TokenEnhancer> delegates = new ArrayList<>();
+        delegates.add(jwtTokenEnhancer);
+        delegates.add(jwtAccessTokenConverter);
+        tokenEnhancer.setTokenEnhancers(delegates);
         tokenServices.setTokenEnhancer(tokenEnhancer);
         //4.设置令牌有效时长?   1小时
-        tokenServices.setAccessTokenValiditySeconds(10);
+        tokenServices.setAccessTokenValiditySeconds(300);
         //5.设置是否支持刷新令牌刷(是否支持使用刷新令牌再生成新令牌)
         tokenServices.setSupportRefreshToken(true);
         //6.设置刷新令牌有效时长? 5小时
-        tokenServices.setRefreshTokenValiditySeconds(300);
+        tokenServices.setRefreshTokenValiditySeconds(600);
+        //7.refresh_token是否重复使用
+        tokenServices.setReuseRefreshToken(false);
         return tokenServices;
     }
 
@@ -86,7 +95,6 @@ public class Oauth2Config extends AuthorizationServerConfigurerAdapter {
      * 说明:我们的认证服务不是对任意客户端都要颁发令牌,是有条件的.
      * 通过此方法配置对谁颁发令牌?客户端需要有什么特点?
      * @param clients 定义客户端的配置
-     * @throws Exception
      */
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
@@ -104,8 +112,6 @@ public class Oauth2Config extends AuthorizationServerConfigurerAdapter {
     /**
      * 我们登录时要对哪个url发起请求,通过哪个url可以解析令牌等?
      * 配置要对外暴露的认证url,刷新令牌的url,检查令牌的url等
-     * @param security
-     * @throws Exception
      */
     @Override
     public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {

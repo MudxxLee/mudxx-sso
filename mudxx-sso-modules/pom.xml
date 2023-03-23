@@ -9,13 +9,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>mudxx-sso-common</artifactId>
+    <artifactId>mudxx-sso-modules</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>mudxx-sso-common-constants</module>
-        <module>mudxx-sso-common-utils</module>
-        <module>mudxx-sso-common-exception</module>
-        <module>mudxx-sso-common-web</module>
+        <module>mudxx-sso-modules-resource-demo</module>
     </modules>
 
     <properties>
