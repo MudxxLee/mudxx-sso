@@ -1,10 +1,13 @@
 package com.mudxx.sso.common.web.api;
 
+import cn.hutool.json.JSONConfig;
 import cn.hutool.json.JSONUtil;
 
 /**
  * 通用返回对象
- * Created by macro on 2019/4/19.
+ *
+ * @author laiwen
+ * @date 2019/4/19
  */
 public class CommonResult<T> {
     private long code;
@@ -22,7 +25,7 @@ public class CommonResult<T> {
 
     @Override
     public String toString() {
-        return JSONUtil.toJsonStr(this);
+        return JSONUtil.toJsonStr(this, new JSONConfig().setIgnoreNullValue(false));
     }
 
     /**

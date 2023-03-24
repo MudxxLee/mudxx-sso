@@ -12,7 +12,7 @@ import java.io.PrintWriter;
  */
 public class WebUtils {
 
-    public static void writeJsonToClient(HttpServletResponse response, CommonResult<Object> result) throws IOException {
+    public static void writeJsonToClient(HttpServletResponse response, CommonResult<?> result) throws IOException {
         //设置响应数据编码和响应数据类型
         response.setCharacterEncoding("utf-8");
         response.setContentType("application/json;charset=utf-8");
