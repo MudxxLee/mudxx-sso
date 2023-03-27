@@ -1,7 +1,7 @@
 package com.mudxx.sso.oauth.config;
 
 import com.mudxx.sso.oauth.exception.OauthServerWebResponseExceptionTranslator;
-import com.mudxx.sso.oauth.filter.IntegrationAuthenticationFilter;
+import com.mudxx.sso.common.oauth.filter.IntegrationAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

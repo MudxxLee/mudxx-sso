@@ -1,4 +1,4 @@
-package com.mudxx.sso.oauth.filter;
+package com.mudxx.sso.common.oauth.web.filter;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;

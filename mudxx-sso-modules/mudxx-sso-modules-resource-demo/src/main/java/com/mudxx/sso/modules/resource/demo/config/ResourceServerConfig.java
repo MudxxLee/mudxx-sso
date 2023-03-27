@@ -1,13 +1,18 @@
 package com.mudxx.sso.modules.resource.demo.config;
 
+import com.mudxx.sso.common.oauth.web.handler.CustomAccessDeniedHandler;
+import com.mudxx.sso.common.oauth.web.point.CustomAuthenticationEntryPoint;
 import com.mudxx.sso.common.web.api.CommonResult;
 import com.mudxx.sso.common.web.util.WebUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
+import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 
@@ -15,6 +20,22 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 @EnableResourceServer
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
+
+    public static final String RESOURCE_ID = "res-demo";
+
+    @Autowired
+    private TokenStore tokenStore;
+
+    @Override
+    public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
+        resources.tokenStore(tokenStore)
+                .resourceId(RESOURCE_ID)
+                .stateless(false);
+        //自定义资源访问认证异常，没有token，或token错误，
+        resources.authenticationEntryPoint(new CustomAuthenticationEntryPoint());
+        resources.accessDeniedHandler(new CustomAccessDeniedHandler());
+    }
+
     /**
      * 路由安全认证配置
      */

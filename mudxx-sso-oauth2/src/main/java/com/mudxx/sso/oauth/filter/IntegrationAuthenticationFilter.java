@@ -1,4 +1,4 @@
-package com.mudxx.sso.oauth.filter;
+package com.mudxx.sso.common.oauth.filter;
 
 
 import cn.hutool.json.JSONObject;

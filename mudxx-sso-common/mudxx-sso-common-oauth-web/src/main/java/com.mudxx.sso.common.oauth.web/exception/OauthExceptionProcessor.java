@@ -1,8 +1,13 @@
-package com.mudxx.sso.oauth.exception;
+package com.mudxx.sso.common.oauth.web.exception;
 
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.mudxx.sso.common.web.api.CommonResult;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.oauth2.client.resource.OAuth2AccessDeniedException;
+import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 
 /**
@@ -12,7 +17,7 @@ import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
  */
 public class OauthExceptionProcessor {
 
-    public static CommonResult<?> processor(OAuth2Exception e) {
+    public static CommonResult<?> processorOAuth2Exception(OAuth2Exception e) {
         if (ObjectUtil.isEmpty(e) || StrUtil.isBlank(e.getOAuth2ErrorCode())) {
             return CommonResult.failed(OauthResultCode.UNAUTHORIZED, StrUtil.blankToDefault(e.getMessage(), OauthResultCode.UNAUTHORIZED.getMessage()));
         }
@@ -42,9 +47,25 @@ public class OauthExceptionProcessor {
                 return CommonResult.failed(OauthResultCode.UNSUPPORTED_RESPONSE_TYPE);
             case OAuth2Exception.REDIRECT_URI_MISMATCH:
                 return CommonResult.failed(OauthResultCode.REDIRECT_URI_MISMATCH);
+            case OAuth2Exception.ACCESS_DENIED:
+                return CommonResult.failed(OauthResultCode.ACCESS_DENIED);
             default:
                 return CommonResult.failed(OauthResultCode.UNAUTHORIZED, StrUtil.blankToDefault(e.getMessage(), OauthResultCode.UNAUTHORIZED.getMessage()));
         }
+    }
+
+    public static CommonResult<?> processorAuthenticationException(AuthenticationException e) {
+        if(e instanceof BadCredentialsException){
+            // 如果是client_id和client_secret相关异常 返回自定义的数据格式
+            return CommonResult.failed(OauthResultCode.INVALID_CLIENT);
+        } else if (e instanceof InsufficientAuthenticationException) {
+            if(e.getCause() instanceof InvalidTokenException) {
+                return CommonResult.unauthorized();
+            } else if(e.getCause() instanceof OAuth2AccessDeniedException) {
+                return CommonResult.failed(OauthResultCode.ACCESS_DENIED, e.getMessage());
+            }
+        }
+        return CommonResult.failed(OauthResultCode.UNAUTHORIZED, e.getMessage());
     }
 
 }

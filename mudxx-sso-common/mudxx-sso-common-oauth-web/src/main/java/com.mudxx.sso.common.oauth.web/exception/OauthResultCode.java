@@ -1,4 +1,4 @@
-package com.mudxx.sso.oauth.exception;
+package com.mudxx.sso.common.oauth.web.exception;
 
 import com.mudxx.sso.common.web.api.IErrorCode;
 
@@ -57,7 +57,7 @@ public enum OauthResultCode implements IErrorCode {
     /**
      * 用户或授权服务器拒绝了请求, 可能是用户取消了对应用的授权或者请求参数的mac签名验证错误
      */
-    ACCESS_DENIED(96012, "用户或授权服务器拒绝了请求, 可能是用户取消了对应用的授权或者请求参数的mac签名验证错误"),
+    ACCESS_DENIED(96012, "访问被拒绝"),
 
     /**
      * 重定向uri不匹配

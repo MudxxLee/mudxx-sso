@@ -1,4 +1,4 @@
-package com.mudxx.sso.oauth.handler;
+package com.mudxx.sso.common.oauth.web.handler;
 
 
 import com.mudxx.sso.common.web.api.CommonResult;

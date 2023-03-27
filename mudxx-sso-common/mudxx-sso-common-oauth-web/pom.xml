@@ -3,25 +3,32 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>mudxx-sso</artifactId>
+        <artifactId>mudxx-sso-common</artifactId>
         <groupId>com.mudxx</groupId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>mudxx-sso-common</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>mudxx-sso-common-constants</module>
-        <module>mudxx-sso-common-utils</module>
-        <module>mudxx-sso-common-exception</module>
-        <module>mudxx-sso-common-web</module>
-        <module>mudxx-sso-common-oauth-web</module>
-    </modules>
+    <artifactId>mudxx-sso-common-oauth-web</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
+
+    <dependencies>
+        <!--子类工程-->
+        <dependency>
+            <groupId>com.mudxx</groupId>
+            <artifactId>mudxx-sso-common-web</artifactId>
+            <version>${mudxx.sso.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-oauth2</artifactId>
+        </dependency>
+
+    </dependencies>
 
 </project>

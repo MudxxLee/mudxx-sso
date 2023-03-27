@@ -1,8 +1,8 @@
 package com.mudxx.sso.oauth.config;
 
-import com.mudxx.sso.oauth.exception.OauthServerWebResponseExceptionTranslator;
-import com.mudxx.sso.oauth.filter.CustomClientCredentialsTokenEndpointFilter;
-import com.mudxx.sso.oauth.point.CustomAuthenticationEntryPoint;
+import com.mudxx.sso.common.oauth.web.exception.OauthServerWebResponseExceptionTranslator;
+import com.mudxx.sso.common.oauth.web.filter.CustomClientCredentialsTokenEndpointFilter;
+import com.mudxx.sso.common.oauth.web.point.CustomAuthenticationEntryPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -110,6 +110,8 @@ public class Oauth2Config extends AuthorizationServerConfigurerAdapter {
                 .secret(passwordEncoder.encode("123456"))
                 //定义作用范围(所有符合定义规则的客户端,例如client,secret,....)
                 .scopes("all")
+                // 定义可访问的资源
+                .resourceIds("res-oauth", "res-demo")
                 //定义允许的认证方式(可以基于密码进行认证,也可以基于刷新令牌进行认证)
                 .authorizedGrantTypes("password", "refresh_token");
     }

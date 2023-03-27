@@ -1,6 +1,6 @@
 package com.mudxx.sso.oauth.provider;
 
-import com.mudxx.sso.oauth.exception.OauthResultCode;
+import com.mudxx.sso.common.oauth.web.exception.OauthResultCode;
 import com.mudxx.sso.oauth.service.UserDetailsServiceImpl;
 import com.mudxx.sso.oauth.service.vo.UserVo;
 import org.slf4j.Logger;

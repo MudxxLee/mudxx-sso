@@ -1,7 +1,7 @@
 package com.mudxx.sso.oauth.resource;
 
-import com.mudxx.sso.oauth.handler.CustomAccessDeniedHandler;
-import com.mudxx.sso.oauth.point.CustomAuthenticationEntryPoint;
+import com.mudxx.sso.common.oauth.web.handler.CustomAccessDeniedHandler;
+import com.mudxx.sso.common.oauth.web.point.CustomAuthenticationEntryPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -16,7 +16,7 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 @EnableGlobalMethodSecurity(prePostEnabled = true)//启动方法上的权限控制,需要授权才可访问的方法上添加@PreAuthorize等相关注解
 public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
 
-    public static final String RESOURCE_ID = "res";
+    public static final String RESOURCE_ID = "res-oauth";
 
     @Autowired
     private TokenStore tokenStore;

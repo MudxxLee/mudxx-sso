@@ -14,9 +14,10 @@
         <!--子类工程-->
         <dependency>
             <groupId>com.mudxx</groupId>
-            <artifactId>mudxx-sso-common-web</artifactId>
+            <artifactId>mudxx-sso-common-oauth-web</artifactId>
             <version>${mudxx.sso.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
