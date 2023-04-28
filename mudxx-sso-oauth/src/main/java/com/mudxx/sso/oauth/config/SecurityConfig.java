@@ -2,6 +2,7 @@ package com.mudxx.sso.oauth.config;
 
 import com.mudxx.sso.common.web.api.CommonResult;
 import com.mudxx.sso.common.web.util.WebUtils;
+import com.mudxx.sso.oauth.filter.AuthenticationTokenFilter;
 import com.mudxx.sso.oauth.provider.SecurityAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +19,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
  * @author laiw
@@ -108,8 +110,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         // 禁用缓存
         httpSecurity.headers().cacheControl();
+
+        // 自定义拦截器
+        httpSecurity.addFilterBefore(authenticationTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 
+    @Bean
+    public AuthenticationTokenFilter authenticationTokenFilter() {
+        return new AuthenticationTokenFilter();
+    }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {

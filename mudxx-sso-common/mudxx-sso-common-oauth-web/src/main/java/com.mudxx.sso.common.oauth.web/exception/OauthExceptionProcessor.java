@@ -64,6 +64,7 @@ public class OauthExceptionProcessor {
             } else if(e.getCause() instanceof OAuth2AccessDeniedException) {
                 return CommonResult.failed(OauthResultCode.ACCESS_DENIED, e.getMessage());
             }
+            return CommonResult.unauthorized();
         }
         return CommonResult.failed(OauthResultCode.UNAUTHORIZED, e.getMessage());
     }

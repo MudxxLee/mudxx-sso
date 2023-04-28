@@ -2,6 +2,7 @@ package com.mudxx.sso.oauth.resource;
 
 import com.mudxx.sso.common.oauth.web.handler.CustomAccessDeniedHandler;
 import com.mudxx.sso.common.oauth.web.point.CustomAuthenticationEntryPoint;
+import com.mudxx.sso.oauth.manager.CustomOauth2AuthenticationManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -11,6 +12,9 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.R
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 
+/**
+ * @author laiwen
+ */
 @Configuration
 @EnableResourceServer //启动资源服务器的默认配置
 @EnableGlobalMethodSecurity(prePostEnabled = true)//启动方法上的权限控制,需要授权才可访问的方法上添加@PreAuthorize等相关注解
@@ -23,6 +27,8 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
 
     @Override
     public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
+        // 添加自定义认证管理器
+        resources.authenticationManager(new CustomOauth2AuthenticationManager());
         resources.tokenStore(tokenStore).
                 resourceId(RESOURCE_ID)
                 .stateless(false);
@@ -38,7 +44,8 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
         // 资源访问
         http.authorizeRequests()
                 // 路径需认证
-                .anyRequest().authenticated();
+                .antMatchers("/api/**").authenticated()
+                .anyRequest().permitAll();
     }
 
 }

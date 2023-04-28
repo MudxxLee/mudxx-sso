@@ -1,5 +1,6 @@
 package com.mudxx.sso.oauth.config;
 
+import com.mudxx.sso.oauth.service.vo.UserVo;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -17,8 +18,9 @@ public class JwtTokenEnhancer implements TokenEnhancer {
 
     @Override
     public OAuth2AccessToken enhance(OAuth2AccessToken accessToken, OAuth2Authentication authentication) {
+        UserVo userVo = (UserVo) authentication.getPrincipal();
         Map<String, Object> info = new HashMap<>();
-        info.put("phone", "1321111111");
+        info.put("username", userVo.getUsername());
         ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(info);
         return accessToken;
     }

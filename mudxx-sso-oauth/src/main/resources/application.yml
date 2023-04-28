@@ -3,4 +3,11 @@ server:
 spring:
   application:
     name: mudxx-sso-oauth
+  profiles:
+    include: redis
+
+# 自定义jwt key
+jwt:
+  tokenHeader: Authorization #JWT存储的请求头
+  tokenHead: "Bearer " #JWT负载中拿到开头
 

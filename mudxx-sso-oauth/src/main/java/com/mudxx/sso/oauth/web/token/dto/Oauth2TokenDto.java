@@ -1,4 +1,4 @@
-package com.mudxx.sso.oauth.token.dto;
+package com.mudxx.sso.oauth.web.token.dto;
 
 import lombok.Builder;
 import lombok.Data;
