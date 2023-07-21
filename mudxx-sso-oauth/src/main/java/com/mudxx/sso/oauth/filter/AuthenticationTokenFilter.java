@@ -1,7 +1,7 @@
 package com.mudxx.sso.oauth.filter;
 
 import cn.hutool.core.util.StrUtil;
-import com.mudxx.component.redis.StringRedisUtils;
+import com.mudxx.component.redis.utils.StringRedisUtils;
 import com.mudxx.sso.common.web.api.CommonResult;
 import com.mudxx.sso.common.web.util.WebUtils;
 import org.slf4j.Logger;

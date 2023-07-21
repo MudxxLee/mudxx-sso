@@ -1,7 +1,7 @@
 package com.mudxx.sso.oauth.web.token;
 
 import cn.hutool.json.JSONUtil;
-import com.mudxx.component.redis.StringRedisUtils;
+import com.mudxx.component.redis.utils.StringRedisUtils;
 import com.mudxx.sso.common.web.api.CommonResult;
 import com.mudxx.sso.oauth.web.token.dto.Oauth2TokenDto;
 import org.springframework.beans.factory.annotation.Autowired;
